@@ -1072,7 +1072,7 @@
         }
 
         function onCalculateClicked() {
-            if (masterPasswordInput.value !== masterPasswordAgainInput.value) {
+            if (masterPasswordInput.value !== masterPasswordAgainInput.value && masterPasswordAgainInput.value.length > 0) {
                 alert('Master password and its repeatition are not the same!');
                 return;
             }
