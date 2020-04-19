@@ -1037,17 +1037,16 @@
                 {
                     "name": "PBKDF2",
                     salt: salt,
-                    "iterations": 65536,
-                    "hash": "SHA-256"
+                    "iterations": 1 << 20,
+                    "hash": "SHA-512"
                 },
                 key,
-                { "name": "AES-GCM", "length": 256 },
+                { name: "HMAC", "hash": "SHA-512" },
                 true,
-                ["encrypt", "decrypt"]
+                ["sign"]
             )).then(key => window.crypto.subtle.exportKey("raw", key)).then(
                 hashed => {
                     hashed = new Uint8Array(hashed);
-                    console.log(hashed);
                     let buffer = new Array(length);
                     for (let i = 0; i < length; ++i) {
                         buffer[i] = charset[large_divmod(hashed, charset.length)];
