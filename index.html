@@ -1017,7 +1017,7 @@
             return remainder;
         }
 
-        function hashpass_derive(master_password, domain, user, counter, length, charset, callback) {
+        function hashpass_derive(master_password, domain, user, counter, length, charset, iterations, callback) {
             if (counter < 0 || counter > 255) throw new RangeError('Counter must be in range [0, 255]');
             master_password = to_bytes(master_password)
             domain = to_bytes(domain);
@@ -1037,7 +1037,7 @@
                 {
                     "name": "PBKDF2",
                     salt: salt,
-                    "iterations": 1 << 20,
+                    "iterations": iterations,
                     "hash": "SHA-512"
                 },
                 key,
@@ -1045,11 +1045,11 @@
                 true,
                 ["sign"]
             )).then(key => window.crypto.subtle.exportKey("raw", key)).then(
-                hashed => {
-                    hashed = new Uint8Array(hashed);
+                array_buffer => {
+                    const values = new Uint8Array(array_buffer);
                     let buffer = new Array(length);
                     for (let i = 0; i < length; ++i) {
-                        buffer[i] = charset[large_divmod(hashed, charset.length)];
+                        buffer[i] = charset[large_divmod(values, charset.length)];
                     }
                     callback(buffer.join(''));
                 });
@@ -1076,12 +1076,14 @@
                 alert('Master password and its repeatition are not the same!');
                 return;
             }
+            derivedOutput.value = '';
             hashpass_derive(masterPasswordInput.value,
                 domainInput.value,
                 userInput.value,
                 counterInput.value,
                 lengthInput.value,
                 CHARSET_MAPPING[charsetDropdown.options[charsetDropdown.selectedIndex].value],
+                iterationsInput.value,
                 function (result) {
                     derivedOutput.value = result;
                 });
@@ -12578,6 +12580,15 @@
             </div>
             <div class="col">
                 <input type="number" id="lengthInput" name="lengthInput" value="32">
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <label for="iterationsInput">Iterations:</label>
+            </div>
+            <div class="col">
+                <input type="number" id="iterationsInput" name="iterationsInput" value="1048576">
             </div>
         </div>
 
